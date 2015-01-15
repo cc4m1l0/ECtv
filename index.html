@@ -114,7 +114,7 @@ a[data-theme="app-ios"] {
 <!-- Start of second page: #descripcion -->
 <div data-role="page" id="videos" data-theme="b" style="background-image:url(img/bg.png); background-position:center">
 	<div data-role="header">
-    <a data-role="button" data-rel="back" style="margin-top:15px" data-icon="arrow-l">volver</a>
+    <a data-role="button" data-rel="back" style="margin-top:15px" data-icon="arrow-l" onClick="destroy()">volver</a>
 		<img id="idimagenl" style="width:140%; height:auto; " src="img/salud_formal.png"/ >
 	</div><!-- /header -->
 	<div data-role="content">
@@ -160,6 +160,8 @@ function stop() {
 		var urlgeneral = "http://unioncolombiana.org.co/esperanzacolombiamedios/ectv/programas/";
 		var urlprogramas = "";
 		var urlimagenl = "";
+		var urlvideop = "";
+		var descvideo = "";
 		$(document).on('pageinit', '#programas' ,function(){
 		$.ajax({
 			url:"http://unioncolombiana.org.co/esperanzacolombiamedios/ectv/programas/programas.xml",
@@ -195,12 +197,12 @@ function stop() {
 		{
 			urlprogramas = urlp;
 			urlimagenl = urli;
-			return false;
+			return true;
 		}
 		</script>
         <!-- Script que carga la descripción del programa con sus episodios -->
         <script type="text/javascript">
-		$(document).on('pageinit', '#videos' ,function (){
+		$(document).on('pageshow', '#videos' ,function (){
 			document.getElementById("idimagenl").src=urlimagenl;
 			$.ajax({
 			url:urlprogramas,
@@ -227,19 +229,28 @@ function stop() {
 				
 				tListd += "<li class='listitem' data-icon='false'><a href='#video' onclick=\"cambiarVideo('" + urlvideo +"','"+ descripcionp + "')\" title='Descripcion de programa'><img width='60px' height='60px' src='" + imagep + "' style='margin:8px; margin-bottom:10px;'/><h3 style='margin-left:-19px;' id='titulo'>" + nombrep + "<br></h3><p style='display:none;' class='wrap' id='descripcion'>"+ descripcionp +"</p></a></li>";
 			});
-			$("#lista_videos").append(tListd);
+			$("#lista_videos").empty().append(tListd);
 			$("#lista_videos").listview("refresh");
 		}
-		function cambiarVideo(urlv, desc) 
-		{
-			document.getElementById('descripcionv').innerHTML = desc;
-			urlvideo = urlv;
+		$(document).on('pageshow', '#video' ,function (){
+			document.getElementById('descripcionv').innerHTML = descvideo;
 			var video = document.getElementById('videocont');
 			var source = document.createElement('source');
 			
-			source.setAttribute('src', urlvideo);
-			
+			source.setAttribute('src', urlvideop);
 			video.appendChild(source);
+			video.load();
+		});
+		function cambiarVideo(urlv, desc) 
+		{
+			
+			var video = document.getElementById('videocont');
+			var source = document.createElement('source');
+			
+			source.setAttribute('src', '');
+			video.appendChild(source);
+			descvideo = desc;
+			urlvideop = urlv;
 			return false;
 		}
 		</script>
