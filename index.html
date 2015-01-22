@@ -78,6 +78,9 @@
 		#descripcion {
 			font-size:16px;
 		}
+		video {
+				width: 100%; height: auto !important; left: 0; top: 0; 
+			}
 		/* button background and borders color */
 a[data-theme="app-ios"] {
     border: none;
@@ -98,7 +101,7 @@ a[data-theme="app-ios"] {
 <div data-role="page" id="programas" style="background-image:url(img/bg.png); background-position:center">
 	<div data-role="header" id="customHeader" >
 		<img src="img/logoectv.png"/ style="margin-top:10px">
-        <br><font color="#ffd100">tus programas</font>
+        <br><font color="#ffd100">Tus programas</font>
         <br><br>
 	</div><!-- /header -->
 
@@ -132,10 +135,8 @@ a[data-theme="app-ios"] {
 	<div data-role="header" style="z-index:0">
 	<a data-role="button" data-rel="back" style="margin-top:15px" data-icon="arrow-l" onClick="stop()" >volver</a>
 	</div><!-- /header -->
-    <div data-role="content" style="z-index:10; margin-top:60px; margin-left:10px; margin-right:10px;">
-    <video id="videocont" controls preload="none" width="100%" height="auto">
-    </video>
-    <p id='descripcionv' style="font-size:18px; margin-top:-5px;">descripcion</p>
+    <div data-role="content" id="contvideo" style="z-index:10; margin-top:60px; margin-left:10px; margin-right:10px;">
+
 	<script>
 function stop() {
     $("#videocont")[0].pause();
@@ -161,7 +162,6 @@ function stop() {
 		var urlprogramas = "";
 		var urlimagenl = "";
 		var urlvideop = "";
-		var descvideo = "";
 		$(document).on('pageinit', '#programas' ,function(){
 		$.ajax({
 			url:"http://unioncolombiana.org.co/esperanzacolombiamedios/ectv/programas/programas.xml",
@@ -224,32 +224,40 @@ function stop() {
 				var nombrep,descripcionp,imagenp;
 				nombrep = $(this).find("nombre").text();
 				descripcionp = $(this).find("descripcion").text();
-				imagep = $(this).find("imagen").text();
+				imagep = $(this).find("imagen").text().replace("webp","jpg");
 				urlvideo = $(this).find("urlvideo").text();
 				
-				tListd += "<li class='listitem' data-icon='false'><a href='#video' onclick=\"cambiarVideo('" + urlvideo +"','"+ descripcionp + "')\" title='Descripcion de programa'><img width='60px' height='60px' src='" + imagep + "' style='margin:8px; margin-bottom:10px;'/><h3 style='margin-left:-19px;' id='titulo'>" + nombrep + "<br></h3><p style='display:none;' class='wrap' id='descripcion'>"+ descripcionp +"</p></a></li>";
+				tListd += "<li class='listitem' data-icon='false'><a href='#video' onclick=\"cambiarVideo('" + urlvideo +"')\" title='Descripcion de programa'><img width='80px' height='60px' src='" + imagep + "' style='margin:8px; margin-bottom:10px;'/><h3 style='margin-left:-10px;' id='titulo'>" + nombrep + "<br></h3><p style='font-size:13px;' class='wrap' id='descripcion'>"+ descripcionp +"</p></a></li>";
 			});
 			$("#lista_videos").empty().append(tListd);
 			$("#lista_videos").listview("refresh");
 		}
 		$(document).on('pageshow', '#video' ,function (){
-			document.getElementById('descripcionv').innerHTML = descvideo;
-			var video = document.getElementById('videocont');
-			var source = document.createElement('source');
 			
-			source.setAttribute('src', urlvideop);
-			video.appendChild(source);
-			video.load();
+			var myNode = document.getElementById("contvideo");
+			while (myNode.firstChild) {
+				myNode.removeChild(myNode.firstChild);
+			}
+			var videlem = document.createElement("video");
+			videlem.setAttribute('id','videocont');
+			videlem.controls = true;
+			/// ... some setup like poster image, size, position etc. goes here...
+			/// now, add sources:
+			var sourceMP4 = document.createElement("source"); 
+			sourceMP4.type = "video/mp4";
+			sourceMP4.src = urlvideop;
+			videlem.appendChild(sourceMP4);
+			document.getElementById("contvideo").appendChild(videlem); 
+			//var video = document.getElementById('videocont');
+			//var source = document.createElement('source');
+			
+			//source.setAttribute('src', urlvideop);
+			//video.appendChild(source);
+			videlem.load();
+			videlem.play();
 		});
-		function cambiarVideo(urlv, desc) 
+		function cambiarVideo(urlv) 
 		{
-			
-			var video = document.getElementById('videocont');
-			var source = document.createElement('source');
-			
-			source.setAttribute('src', '');
-			video.appendChild(source);
-			descvideo = desc;
 			urlvideop = urlv;
 			return false;
 		}
